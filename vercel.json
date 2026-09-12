@@ -1,0 +1,11 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "cleanUrls": true,
+  "crons": [
+    {
+      "path": "/api/cron/release-holds",
+      "schedule": "* * * * *"
+    }
+  ]
+}
