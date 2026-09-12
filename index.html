@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CineBook - Premiere Cinema Ticket Booking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    body { background-color: #09090b; color: #f4f4f5; font-family: system-ui, -apple-system, sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Top Navigation -->
+  <header class="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="#" onclick="showSection('home')" class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center shadow-lg">
+          <i data-lucide="film" class="w-5 h-5 text-zinc-950 stroke-[2.5]"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-extrabold text-lg text-white">Cine<span class="text-amber-400">Book</span></span>
+          <span class="text-[10px] uppercase font-semibold text-zinc-400 -mt-1">Premiere Tickets</span>
+        </div>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/khalilrasmi0-art/cinebook" target="_blank" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-white flex items-center gap-1.5 transition-colors">
+          <i data-lucide="github" class="w-4 h-4"></i> GitHub Code
+        </a>
+        <a href="https://vercel.com/new/clone?repository-url=https://github.com/khalilrasmi0-art/cinebook" target="_blank" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-rose-600 text-zinc-950 flex items-center gap-1.5 hover:opacity-90 shadow-md">
+          <i data-lucide="external-link" class="w-4 h-4"></i> Deploy on Vercel
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Banner -->
+  <div class="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-transparent border-b border-zinc-800/80 px-4 py-2 text-center text-xs text-zinc-300">
+    <span>🎬 <strong>Live Client Demo on GitHub Pages</strong> — Full-Stack Serverless Backend & PostgreSQL engine available on Vercel.</span>
+  </div>
+
+  <!-- Hero Section -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <!-- Hero Banner -->
+    <div class="relative rounded-3xl overflow-hidden mb-12 border border-zinc-800 h-[380px] sm:h-[440px]">
+      <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=80" class="w-full h-full object-cover brightness-50" />
+      <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
+      <div class="absolute bottom-8 left-6 sm:left-10 max-w-xl space-y-3">
+        <span class="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold uppercase tracking-wider">
+          ★ 8.6 • Featured Premiere
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-black text-white">Dune: Part Two</h1>
+        <p class="text-xs sm:text-sm text-zinc-300 line-clamp-2">Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.</p>
+        <button onclick="openSeatModal('Dune: Part Two', '19:45', 'Grand Auditorium 1 (IMAX)', 15.00)" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-zinc-950 font-bold text-xs flex items-center gap-2 hover:opacity-95 shadow-xl">
+          <i data-lucide="ticket" class="w-4 h-4"></i> Book IMAX Tickets
+        </button>
+      </div>
+    </div>
+
+    <!-- Movie Catalog -->
+    <div class="mb-6 flex items-center justify-between">
+      <div>
+        <span class="text-xs uppercase font-bold tracking-widest text-amber-500">Now Showing</span>
+        <h2 class="text-2xl font-extrabold text-white">Explore Cinema Screenings</h2>
+      </div>
+    </div>
+
+    <!-- Movie Grid -->
+    <div id="moviesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </main>
+
+  <!-- Booking & Seat Modal -->
+  <div id="seatModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
+        <div>
+          <h3 id="modalMovieTitle" class="text-lg font-bold text-white"></h3>
+          <p id="modalShowtimeInfo" class="text-xs text-zinc-400"></p>
+        </div>
+        <button onclick="closeSeatModal()" class="text-zinc-400 hover:text-white p-2 text-xl">&times;</button>
+      </div>
+
+      <!-- Screen Line -->
+      <div class="flex flex-col items-center">
+        <div class="w-3/4 h-2 bg-gradient-to-r from-transparent via-amber-400 to-transparent rounded-full opacity-70 mb-1"></div>
+        <span class="text-[10px] uppercase font-bold tracking-widest text-zinc-500">Screen</span>
+      </div>
+
+      <!-- Seat Grid -->
+      <div id="seatsContainer" class="flex flex-col items-center gap-2"></div>
+
+      <!-- Summary & Checkout -->
+      <div class="bg-zinc-950 p-4 rounded-2xl border border-zinc-800 flex items-center justify-between">
+        <div>
+          <span class="text-xs text-zinc-400 block">Selected: <strong id="selectedSeatsLabel" class="text-white">None</strong></span>
+          <span class="text-lg font-extrabold text-amber-400" id="totalPriceLabel">$0.00</span>
+        </div>
+        <button onclick="confirmBooking()" id="checkoutBtn" disabled class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-zinc-950 font-bold text-xs disabled:opacity-40 shadow-lg cursor-pointer">
+          Confirm Reservation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Digital Pass Modal -->
+  <div id="passModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto">
+        <i data-lucide="check" class="w-6 h-6 stroke-[3]"></i>
+      </div>
+      <h3 class="text-xl font-bold text-white">Booking Confirmed!</h3>
+      <p class="text-xs text-zinc-400">Ref: <strong id="passRef" class="text-amber-400 font-mono text-sm"></strong></p>
+      
+      <div class="bg-white p-3 rounded-2xl inline-block shadow-lg">
+        <canvas id="qrCanvas"></canvas>
+      </div>
+      
+      <div class="text-xs text-zinc-300 space-y-1 bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+        <p><strong id="passMovie"></strong></p>
+        <p>Seats: <span id="passSeats" class="text-amber-400 font-bold"></span></p>
+      </div>
+
+      <button onclick="closePassModal()" class="w-full py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold">
+        Done
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800 py-6 bg-zinc-950 text-center text-xs text-zinc-500 mt-auto">
+    <p>© 2025 CineBook Inc. Multi-Agent Production Architecture.</p>
+  </footer>
+
+  <script>
+    const movies = [
+      { title: "Dune: Part Two", genre: "Sci-Fi / Adventure", rating: "8.6", duration: "166m", time: "19:45", price: 15.00, screen: "Screen 1 (IMAX)", poster: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80" },
+      { title: "Interstellar: Re-Mastered", genre: "Sci-Fi / Drama", rating: "8.9", duration: "169m", time: "21:00", price: 14.50, screen: "Auditorium 2 (Dolby)", poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80" },
+      { title: "Neon Horizon: Cyber Tokyo", genre: "Action / Cyberpunk", rating: "8.2", duration: "128m", time: "18:30", price: 14.00, screen: "Screen 3 (4DX)", poster: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80" },
+      { title: "Gladiator II", genre: "Action / Epic", rating: "8.1", duration: "148m", time: "20:15", price: 15.50, screen: "Harbor Laser 1", poster: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80" },
+    ];
+
+    let currentMovie = null;
+    let selectedSeats = [];
+    const basePrice = 15.00;
+
+    function renderMovies() {
+      const grid = document.getElementById("moviesGrid");
+      grid.innerHTML = movies.map(m => `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all flex flex-col justify-between">
+          <div class="aspect-[2/3] w-full overflow-hidden">
+            <img src="${m.poster}" class="w-full h-full object-cover" />
+          </div>
+          <div class="p-4 space-y-2">
+            <span class="text-[11px] text-amber-400 font-bold uppercase">${m.genre}</span>
+            <h3 class="font-bold text-white">${m.title}</h3>
+            <div class="flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-zinc-800">
+              <span>★ ${m.rating} • ${m.duration}</span>
+              <span class="text-emerald-400 font-bold">$${m.price.toFixed(2)}</span>
+            </div>
+            <button onclick="openSeatModal('${m.title}', '${m.time}', '${m.screen}', ${m.price})" class="w-full mt-2 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-zinc-950 font-bold text-xs shadow-md">
+              Select Seats
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function openSeatModal(title, time, screen, price) {
+      currentMovie = { title, time, screen, price };
+      selectedSeats = [];
+      document.getElementById("modalMovieTitle").innerText = title;
+      document.getElementById("modalShowtimeInfo").innerText = `${screen} • ${time}`;
+      renderSeats();
+      updateTotal();
+      const modal = document.getElementById("seatModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeSeatModal() {
+      const modal = document.getElementById("seatModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function renderSeats() {
+      const container = document.getElementById("seatsContainer");
+      const rows = ["A", "B", "C", "D", "E", "F"];
+      const cols = 8;
+      
+      container.innerHTML = rows.map(r => `
+        <div class="flex items-center gap-2">
+          <span class="w-4 text-xs font-bold text-zinc-500">${r}</span>
+          <div class="flex gap-1.5">
+            ${Array.from({length: cols}, (_, i) => {
+              const seatId = `${r}${i+1}`;
+              const isSelected = selectedSeats.includes(seatId);
+              const isOccupied = (r === "C" && (i === 3 || i === 4));
+              let cls = isSelected 
+                ? "bg-rose-600 text-white font-bold" 
+                : isOccupied 
+                ? "bg-zinc-800 opacity-30 cursor-not-allowed" 
+                : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300";
+              return `
+                <button 
+                  onclick="${isOccupied ? '' : `toggleSeat('${seatId}')`}" 
+                  class="w-7 h-7 rounded-lg text-[10px] font-semibold border border-zinc-700/50 transition-colors ${cls}">
+                  ${i+1}
+                </button>
+              `;
+            }).join("")}
+          </div>
+          <span class="w-4 text-xs font-bold text-zinc-500">${r}</span>
+        </div>
+      `).join("");
+    }
+
+    function toggleSeat(id) {
+      if (selectedSeats.includes(id)) {
+        selectedSeats = selectedSeats.filter(s => s !== id);
+      } else {
+        if (selectedSeats.length < 6) selectedSeats.push(id);
+      }
+      renderSeats();
+      updateTotal();
+    }
+
+    function updateTotal() {
+      const total = selectedSeats.length * (currentMovie ? currentMovie.price : basePrice);
+      document.getElementById("selectedSeatsLabel").innerText = selectedSeats.length ? selectedSeats.join(", ") : "None";
+      document.getElementById("totalPriceLabel").innerText = `$${total.toFixed(2)}`;
+      document.getElementById("checkoutBtn").disabled = selectedSeats.length === 0;
+    }
+
+    function confirmBooking() {
+      closeSeatModal();
+      const ref = "CB-" + Math.random().toString(36).substring(2, 6).toUpperCase() + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+      document.getElementById("passRef").innerText = ref;
+      document.getElementById("passMovie").innerText = currentMovie.title;
+      document.getElementById("passSeats").innerText = selectedSeats.join(", ");
+      
+      QRCode.toCanvas(document.getElementById("qrCanvas"), `CINEBOOK|${ref}|${currentMovie.title}|${selectedSeats.join(",")}`, { width: 140, margin: 1 });
+      
+      const passModal = document.getElementById("passModal");
+      passModal.classList.remove("hidden");
+      passModal.classList.add("flex");
+    }
+
+    function closePassModal() {
+      document.getElementById("passModal").classList.add("hidden");
+      document.getElementById("passModal").classList.remove("flex");
+    }
+
+    window.onload = () => {
+      renderMovies();
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>
