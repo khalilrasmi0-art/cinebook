@@ -1,4 +1,4 @@
-import { getMovieBySlug, getShowtimesForMovie } from "@/lib/data-store";
+import { getMovieBySlug, getShowtimesForMovie, getMovies } from "@/lib/data-store";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -14,6 +14,13 @@ import { formatShowDate, formatShowTime, formatCurrency } from "@/lib/utils";
 
 interface MovieDetailsPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  const movies = await getMovies();
+  return movies.map((m) => ({
+    slug: m.slug,
+  }));
 }
 
 export default async function MovieDetailsPage({ params }: MovieDetailsPageProps) {

@@ -1,12 +1,20 @@
 import { getShowtimeById, getSeatsForShowtime } from "@/lib/data-store";
+import { generateInitialShowtimes } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 import SeatMap from "@/components/seat-map";
 import Link from "next/link";
-import { ArrowLeft, Film, Clock, Calendar, MapPin } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, MapPin } from "lucide-react";
 import { formatShowDate, formatShowTime } from "@/lib/utils";
 
 interface BookingPageProps {
   params: Promise<{ showtimeId: string }>;
+}
+
+export async function generateStaticParams() {
+  const showtimes = generateInitialShowtimes();
+  return showtimes.map((st) => ({
+    showtimeId: st.id,
+  }));
 }
 
 export default async function BookingPage({ params }: BookingPageProps) {
